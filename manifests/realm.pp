@@ -1,10 +1,6 @@
-# realm.pp
-# Collection of global definitions used across sites, within one realm.
-#
+$main_ipaddress = $::ipaddress_eth0
 
-# Determine the site the server is in
-
-$site = $facts['ipaddress'] ? {
+$site = $main_ipaddress ? {
     /^208\.80\.15[23]\./                      => 'codfw',
     /^208\.80\.15[45]\./                      => 'eqiad',
     /^10\.6[48]\./                            => 'eqiad',
@@ -48,13 +44,7 @@ $other_site = $site ? {
     default => '(undefined)'
 }
 
-$app_routes = hiera('discovery::app_routes')
-
-# Shortcut variables to use e.g. in hiera
-$mw_primary = $app_routes['mediawiki']
-$aqs_site = $app_routes['aqs']
-
-$network_zone = $facts['ipaddress'] ? {
+$network_zone = $main_ipaddress ? {
     /^10./  => 'internal',
     default => 'public'
 }
