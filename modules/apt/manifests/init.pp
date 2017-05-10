@@ -48,41 +48,35 @@ class apt(
     }
 
     if $use_proxy {
-        $http_proxy = "http://webproxy.${::site}.wmnet:8080"
 
         if $::operatingsystem == 'Debian' {
             apt::conf { 'security-debian-proxy':
                 ensure   => present,
                 priority => '80',
                 key      => 'Acquire::http::Proxy::security.debian.org',
-                value    => $http_proxy,
             }
             apt::conf { 'security-cdn-debian-proxy':
                 ensure   => present,
                 priority => '80',
                 key      => 'Acquire::http::Proxy::security-cdn.debian.org',
-                value    => $http_proxy,
             }
         } elsif $::operatingsystem == 'Ubuntu' {
             apt::conf { 'security-ubuntu-proxy':
                 ensure   => present,
                 priority => '80',
                 key      => 'Acquire::http::Proxy::security.ubuntu.com',
-                value    => $http_proxy,
             }
 
             apt::conf { 'ubuntu-cloud-archive-proxy':
                 ensure   => present,
                 priority => '80',
                 key      => 'Acquire::http::Proxy::ubuntu-cloud.archive.canonical.com',
-                value    => $http_proxy,
             }
 
             apt::conf { 'old-releases-proxy':
                 ensure   => present,
                 priority => '80',
                 key      => 'Acquire::http::Proxy::old-releases.ubuntu.com',
-                value    => $http_proxy,
             }
         } else {
             fail("Unknown operating system '${::operatingsystem}'.")

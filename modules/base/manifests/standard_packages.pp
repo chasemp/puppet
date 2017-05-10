@@ -27,7 +27,6 @@ class base::standard_packages {
         'moreutils',
         'ncdu',
         'ngrep',
-        'quickstack',
         'pv',
         'screen',
         'strace',
