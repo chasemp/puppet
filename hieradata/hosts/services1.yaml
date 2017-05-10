@@ -1,0 +1,7 @@
+# All for ldap
+
+labs_keystone_host: control1
+
+labsldapconfig:
+  hostname: "services1"
+  secondary_hostname: "services1"

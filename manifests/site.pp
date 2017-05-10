@@ -1172,6 +1172,11 @@ node 'labtestnet2001.codfw.wmnet' {
     include ::standard
 }
 
+node 'services1' {
+    include ::standard
+    include role::openldap::local
+}
+
 node 'control1' {
     include ::standard
     # install mariadb
