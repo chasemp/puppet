@@ -1172,6 +1172,18 @@ node 'labtestnet2001.codfw.wmnet' {
     include ::standard
 }
 
+node 'control1' {
+    include ::standard
+    # install mariadb
+    # add ubuntu cloud repo
+    include openstack::local_queue_server
+
+
+    # after db perms
+    # after keystone seed...
+    # include openstack::keystone::local
+}
+
 node 'labtestcontrol2001.wikimedia.org' {
     include ::standard
     include ::base::firewall

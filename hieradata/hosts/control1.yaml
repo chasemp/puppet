@@ -1,0 +1,3 @@
+labs_nova_controller: 'control1.attlocal.net'
+rabbit_host: 'control1'
+rabbit_monitor_pass: 'rabbitpass'
