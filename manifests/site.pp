@@ -1182,7 +1182,7 @@ node 'control1' {
     # install mariadb
     # add ubuntu cloud repo
     include openstack::local_queue_server
-
+    include openstack::keystone::local
 
     # after db perms
     # after keystone seed...

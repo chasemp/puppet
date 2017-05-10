@@ -229,13 +229,15 @@ log_dir = /var/log/keystone
 # messaging, messagingv2, routing, log, test, noop (multi valued)
 notification_driver = wmfkeystonehooks
 
+# XXX
 # Login info for wikitech, for project page updates
-wiki_host=<%= @wikitechstatusconfig["host"] %>
-wiki_page_prefix=<%= @wikitechstatusconfig["page_prefix"] %>
-wiki_consumer_token=<%= @wikitechstatusconfig["wikitech_status_consumer_token"] %>
-wiki_consumer_secret=<%= @wikitechstatusconfig["wikitech_status_consumer_secret"] %>
-wiki_access_token=<%= @wikitechstatusconfig["wikitech_status_access_token"] %>
-wiki_access_secret=<%= @wikitechstatusconfig["wikitech_status_access_secret"] %>
+
+wiki_host=127.0.0.1
+wiki_page_prefix=x
+wiki_consumer_token=x
+wiki_consumer_secret=x
+wiki_access_token=x
+wiki_access_secret=x
 
 # AMQP topic used for OpenStack notifications. (list value)
 # Deprecated group/name - [rpc_notifier2]/topics
@@ -388,16 +390,12 @@ password = <%= @keystoneconfig["ldap_user_pass"] %>
 [auth]
 methods = external,password,token,wmtotp
 
+# XXX
 # Override the default password plugin with a custom
 #  one that checks source IPs.
 password = whitelist
-
-<% @labs_networks.each do |subnet| -%>
-password_whitelist = novaobserver:<%=subnet%>
-<% end -%>
-<% @prod_networks.each do |subnet| -%>
-password_whitelist = *:<%=subnet%>
-<% end -%>
+password_whitelist = novaobserver:0.0.0.0/0
+password_whitelist = *:0.0.0.0/0
 
 [oath]
 
@@ -410,5 +408,5 @@ wikitech_access_secret = <%= @keystoneconfig["wikitech_access_secret"] %>
 [wmfhooks]
 
 admin_pass = <%= @keystoneconfig["ldap_user_pass"] %>
-auth_url = <%= @keystoneconfig["auth_protocol"] %>://<%= @fqdn %>:<%= @keystoneconfig["auth_port"] %>/v3
+auth_url = <%= @keystoneconfig["auth_protocol"] %>://<%= @hostname %>:<%= @keystoneconfig["auth_port"] %>/v3
 

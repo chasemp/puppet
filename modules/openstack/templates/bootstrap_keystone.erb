@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# Bootstrap the keystone install
+
+set -ex
+
+# bootstrap with admin_token
+. /etc/admin-rc
+
+keystone --version
+su -s /bin/sh -c "keystone-manage db_sync" keystone
+
+openstack service create --name keystone \
+    --description "OpenStack Identity" identity
+
+openstack endpoint create --region lablocal identity \
+    public http://control1.local:5000/v2.0
+openstack endpoint create --region lablocal identity \
+    internal http://control1.local:5000/v2.0
+openstack endpoint create --region lablocal \
+    identity admin http://control1.local:35357/v2.0
+
+openstack endpoint list
+
+openstack project create --domain default \
+    --description "Admin Project" admin
+
+openstack project list
+
+# users pre-exist in ldap
+# openstack user create --domain default admin --email admin@onecloud.com
+# openstack user create --domain default admin --pass adminpass --email admin@onecloud.com
+# openstack user create --domain default admin --password pass --email admin@onecloud.com
+
+openstack user list
+
+openstack role create admin
+openstack role create observer
+openstack role create user
+openstack role create projectadmin
+openstack role create glanceadmin
+openstack role create _member_
+
+openstack role list
+
+openstack role add --project admin --user novaadmin admin
+
+## -- ##
+
+
+/usr/bin/keystone-manage --debug bootstrap \
+    --bootstrap-username admin \
+    --bootstrap-password "<%= @admin_password %>" \
+    --bootstrap-project-name admin \
+    --bootstrap-role-name admin \
+    --bootstrap-service-name keystone \
+    --bootstrap-region-id "lablocal" \
+    --bootstrap-admin-url "http://127.0.0.1:35357/v3/" \
+    --bootstrap-public-url "http://127.0.0.1:5000/v3/"
+
+/usr/bin/openstack project create --or-show \
+    --domain default \
+    --description "Service Project" \
+    service
+
+/usr/bin/openstack role create --or-show service
+
+/usr/bin/openstack role create --or-show _member_
+/usr/bin/openstack role create --or-show admin
+/usr/bin/openstack role create --or-show observer
+/usr/bin/openstack role create --or-show projectadmin
+/usr/bin/openstack role create --or-show user
+
+/usr/bin/openstack project create --or-show tools
+

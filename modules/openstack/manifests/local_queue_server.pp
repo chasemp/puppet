@@ -28,15 +28,8 @@ class openstack::local_queue_server(
         source => 'puppet:///modules/openstack/rabbitmq/rabbitmqadmin',
     }
 
-    if $::fqdn == hiera('labs_nova_controller') {
-        service { 'rabbitmq-server':
-            ensure  => running,
-            require => Package['rabbitmq-server'];
-        }
-    } else {
-        service { 'rabbitmq-server':
-            ensure  => stopped,
-            require => Package['rabbitmq-server'];
-        }
+    service { 'rabbitmq-server':
+        ensure  => running,
+        require => Package['rabbitmq-server'];
     }
 }

@@ -1,3 +1,34 @@
-labs_nova_controller: 'control1.attlocal.net'
+### for rabbit###
+labs_nova_controller: 'control1.local'
 rabbit_host: 'control1'
 rabbit_monitor_pass: 'rabbitpass'
+
+
+#### for keystone ###
+nova_region: 'lablocal'
+labs_osm_host: 'localhost'
+
+keystoneconfig:
+  hostname: control1.local
+  admin_token: 'kbtoken'
+  db_name: 'keystone'
+  db_user: 'keystone'
+  db_pass: 'KEYSTONE_DBPASS'
+  ldap_base_dn: 'dc=wikimedia,dc=org'
+  ldap_user_dn: 'uid=novaadmin,ou=people,dc=wikimedia,dc=org'
+  ldap_user_pass: 'nimdaavon'
+  ldap_user_id_attribute: 'uid'
+  ldap_tenant_id_attribute: 'cn'
+  ldap_user_name_attribute: 'cn'
+  ldap_tenant_name_attribute: 'cn'
+  ldap_proxyagent : 'cn=proxyagent,ou=profile,dc=wikimedia,dc=org'
+  auth_protocol: 'http'
+  auth_port: '35357'
+  public_port: '5000'
+  db_host: 'localhost'
+  ldap_host: 'services1'
+  token_driver: 'normal'
+
+  wikitech_consumer_token: 'asdf'
+  wikitech_consumer_secret: 'asdf'
+  wikitech_access_secret: 'asdf'
