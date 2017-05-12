@@ -1183,6 +1183,7 @@ node 'control1' {
     # add ubuntu cloud repo
     include openstack::local_queue_server
     include openstack::keystone::local
+    include openstack::glance::local_service
 
     # after db perms
     # after keystone seed...

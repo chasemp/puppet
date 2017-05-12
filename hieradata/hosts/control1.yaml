@@ -1,15 +1,22 @@
+# glance
+glanceconfig:
+  db_host: '192.168.1.200'
+  bind_ip: "%{::ipaddress_eth0}"
+  db_user: glance
+  db_pass: ecnalg
+  db_name: glance
+
 ### for rabbit###
-labs_nova_controller: 'control1.local'
+labs_nova_controller: '192.168.1.200'
 rabbit_host: 'control1'
 rabbit_monitor_pass: 'rabbitpass'
-
 
 #### for keystone ###
 nova_region: 'lablocal'
 labs_osm_host: 'localhost'
 
 keystoneconfig:
-  hostname: control1.local
+  hostname: 192.168.1.200
   admin_token: 'kbtoken'
   db_name: 'keystone'
   db_user: 'keystone'
