@@ -1185,6 +1185,10 @@ node 'control1' {
     include openstack::keystone::local
     include openstack::glance::local_service
 
+    include role::labs::openstack::nova::common
+
+    include openstack::nova::scheduler
+
     # after db perms
     # after keystone seed...
     # include openstack::keystone::local

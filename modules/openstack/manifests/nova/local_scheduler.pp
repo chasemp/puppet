@@ -1,13 +1,8 @@
 # openstack scheduler determines on which host a
 # particular instance should run
-class openstack::nova::scheduler(
+class openstack::nova::local_scheduler(
     $openstack_version='liberty',
 ){
-    # include ::openstack::repo
-
-    package { 'nova-scheduler':
-        ensure  => present,
-    }
 
     file { '/usr/lib/python2.7/dist-packages/nova/scheduler/filters/scheduler_pool_filter.py':
         source  => "puppet:///modules/openstack/${openstack_version}/nova/scheduler_pool_filter.py",
@@ -27,9 +22,14 @@ class openstack::nova::scheduler(
         group  => 'root',
     }
 
+    package { 'nova-scheduler':
+        ensure  => present,
+    }
+
     service { 'nova-scheduler':
         ensure    => running,
         subscribe => File['/etc/nova/nova.conf'],
         require   => Package['nova-scheduler'];
     }
+
 }

@@ -1,6 +1,7 @@
 class role::labs::openstack::nova::common {
-    require openstack
-    include passwords::misc::scripts
+
+    # require openstack
+    # include passwords::misc::scripts
 
     $novaconfig_pre                       = hiera_hash('novaconfig', {})
     $keystoneconfig                       = hiera_hash('keystoneconfig', {})
@@ -13,16 +14,17 @@ class role::labs::openstack::nova::common {
     $status_wiki_host_master              = hiera('status_wiki_host_master')
 
     $extra_novaconfig = {
-        bind_ip                => ipresolve($keystone_host,4),
+        bind_ip                => $keystone_host,
         keystone_auth_host     => $keystoneconfig['auth_host'],
         keystone_auth_port     => $keystoneconfig['auth_port'],
         keystone_admin_token   => $keystoneconfig['admin_token'],
         keystone_auth_protocol => $keystoneconfig['auth_protocol'],
         auth_uri               => "http://${nova_controller}:5000",
         admin_uri              => "http://${nova_controller}:35357",
-        api_ip                 => ipresolve($nova_api_host,4),
-        controller_address     => ipresolve($nova_controller,4),
+        api_ip                 => $nova_api_host,
+        controller_address     => $nova_controller,
     }
+
     $novaconfig = deep_merge($novaconfig_pre, $extra_novaconfig)
 
     class { '::openstack::common':

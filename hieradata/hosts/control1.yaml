@@ -1,3 +1,67 @@
+labs_keystone_host: 192.168.1.200
+
+novaconfig:
+  rabbit_user: nova
+  rabbit_pass: avon
+
+  network_host: net1.local
+  api_host: net1.local
+  db_name: 'nova'
+  db_user: 'nova'
+  db_pass: 'avon'
+  ceilometer_db_name: 'ceilometer'
+  ldap_base_dn: 'dc=wikimedia,dc=org'
+  ldap_user_dn: 'uid=novaadmin,ou=people,dc=wikimedia,dc=org'
+  ldap_proxyagent: 'cn=proxyagent,ou=profile,dc=wikimedia,dc=org'
+  puppet_db_name: 'puppet'
+  puppet_db_user: 'puppet'
+  quota_floating_ips: '0'
+  # dummy value
+  spice_hostname: 'localhost'
+  libvirt_type: 'kvm'
+  my_ip: "%{::ipaddress_eth0}"
+
+  # WMF
+  #network_flat_tagged_base_interface: 'eth1'
+  #network_flat_interface_vlan: '2102'
+
+  # Native
+  network_public_interface: 'eth0'
+  network_flat_interface: 'eth1.2102'
+  flat_network_bridge: 'br2102'
+
+  fixed_range: '172.16.1.0/24'
+  dhcp_start: '172.16.1.5'
+  network_public_ip: '208.80.155.255'
+
+  # https://ask.openstack.org/en/question/16116/what-is-the-purpose-of-dmz_cidr/
+  dmz_cidr: '208.80.155.0/22,10.0.0.0/8'
+
+  db_host: '192.168.1.200'
+  glance_host: '192.168.1.200'
+  rabbit_host: '192.168.1.200'
+  cc_host: '192.168.1.200'
+  controller_hostname: '192.168.1.200'
+  ldap_host: 'services1.local'
+
+  # dummy values
+  puppet_host: '192.168.1.200'
+  puppet_db_host: '192.168.1.200'
+
+  dhcp_domain: 'lablocal'
+  live_migration_uri: 'qemu://%s.codfw.wmnet/system?pkipath=/var/lib/nova'
+
+  # zone vs region?
+  zone: lablocal
+
+  scheduler_pool:
+    - virt1.local
+
+  wikitechstatusconfig:
+
+    host: 'localhost'
+    page_prefix: 'Nova_Resource:'
+
 # glance
 glanceconfig:
   db_host: '192.168.1.200'

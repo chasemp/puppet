@@ -1,26 +1,9 @@
-# openstack role add --project admin --user novaadmin admin
-# openstack service create --name nova --description "Nova" compute
+class openstack::local_common {
 
-# openstack endpoint create --region lablocal \
-#     compute public http://control1.local:8774/v2/%\(tenant_id\)s
-
-# openstack endpoint create --region lablocal \
-#     compute internal http://control1.local:8774/v2/%\(tenant_id\)s
-
-# openstack endpoint create --region lablocal \
-#     compute admin http://control1.local:8774/v2/%\(tenant_id\)s
-
-# common packages and config for openstack
-class openstack::common(
-            $novaconfig,
-            $wikitechstatusconfig,
-            $openstack_version='liberty',
-    ) {
-
-    #    'mysql-common',
-    #    'mysql-client-5.5',
-
-    # include ::openstack::repo
+    $novaconfig = hiera('novaconfig')
+    $wikitechstatusconfig = hiera('wikitechstatusconfig')
+    $openstack_version='liberty'
+    #include ::openstack::repo
 
     $packages = [
         'unzip',
@@ -28,6 +11,8 @@ class openstack::common(
         'vblade-persist',
         'bridge-utils',
         'ebtables',
+        'mysql-common',
+        'mysql-client-5.5',
         'python-mysqldb',
         'python-netaddr',
         'python-keystone',
