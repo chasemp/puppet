@@ -1188,6 +1188,11 @@ node 'control1' {
     include role::labs::openstack::nova::common
 
     include openstack::nova::scheduler
+    include openstack::nova::conductor
+
+    include role::labs::openstack::nova::api
+
+
 
     # after db perms
     # after keystone seed...
