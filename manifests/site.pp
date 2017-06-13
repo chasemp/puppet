@@ -1177,6 +1177,11 @@ node 'services1' {
     include role::openldap::local
 }
 
+node 'virt1' {
+    include ::standard
+    include role::labs::openstack::nova::compute
+}
+
 node 'control1' {
     include ::standard
     # install mariadb

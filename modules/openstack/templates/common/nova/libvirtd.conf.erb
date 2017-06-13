@@ -19,7 +19,7 @@
 # using this capability.
 #
 # This is enabled by default, uncomment this to disable it
-#listen_tls = 0
+listen_tls = 0
 
 # Listen for unencrypted TCP connections on the public TCP/IP port.
 # NB, must pass the --listen flag to the libvirtd process for this to
@@ -30,7 +30,7 @@
 # DIGEST_MD5 and GSSAPI (Kerberos5)
 #
 # This is disabled by default, uncomment this to enable it.
-#listen_tcp = 1
+listen_tcp = 1
 
 
 
@@ -48,6 +48,10 @@
 # Override the default configuration which binds to all network
 # interfaces. This can be a numeric IPv4/6 address, or hostname
 #
+# If the libvirtd service is started in parallel with network
+# startup (e.g. with systemd), binding to addresses other than
+# the wildcards (0.0.0.0/::) might not be available yet.
+#
 #listen_addr = "192.168.0.1"
 
 
@@ -56,14 +60,14 @@
 # Alternatively can disable for all services on a host by
 # stopping the Avahi daemon
 #
-# This is enabled by default, uncomment this to disable it
-#mdns_adv = 0
+# This is disabled by default, uncomment this to enable it
+#mdns_adv = 1
 
 # Override the default mDNS advertizement name. This must be
 # unique on the immediate broadcast network.
 #
 # The default is "Virtualization Host HOSTNAME", where HOSTNAME
-# is subsituted for the short hostname of the machine (without domain)
+# is substituted for the short hostname of the machine (without domain)
 #
 #mdns_name = "Virtualization Host Joe Demo"
 
@@ -72,6 +76,11 @@
 #
 # UNIX socket access controls
 #
+
+# Beware that if you are changing *any* of these options, and you use
+# socket activation with systemd, you need to adjust the settings in
+# the libvirtd.socket file as well since it could impose a security
+# risk if you rely on file permission checking only.
 
 # Set the UNIX domain socket group ownership. This can be used to
 # allow a 'trusted' set of users access to management capabilities
@@ -83,9 +92,9 @@ unix_sock_group = "libvirtd"
 # Set the UNIX socket permissions for the R/O socket. This is used
 # for monitoring VM status only
 #
-# Default allows any user. If setting group ownership may want to
-# restrict this to:
-#unix_sock_ro_perms = "0777"
+# Default allows any user. If setting group ownership, you may want to
+# restrict this too.
+unix_sock_ro_perms = "0777"
 
 # Set the UNIX socket permissions for the R/W socket. This is used
 # for full management of VMs
@@ -94,7 +103,7 @@ unix_sock_group = "libvirtd"
 # the default will change to allow everyone (eg, 0777)
 #
 # If not using PolicyKit and setting group ownership for access
-# control then you may want to relax this to:
+# control, then you may want to relax this too.
 unix_sock_rw_perms = "0770"
 
 # Set the name of the directory in which sockets will be found/created.
@@ -113,7 +122,7 @@ unix_sock_rw_perms = "0770"
 #  - sasl: use SASL infrastructure. The actual auth scheme is then
 #          controlled from /etc/sasl2/libvirt.conf. For the TCP
 #          socket only GSSAPI & DIGEST-MD5 mechanisms will be used.
-#          For non-TCP or TLS sockets,  any scheme is allowed.
+#          For non-TCP or TLS sockets, any scheme is allowed.
 #
 #  - polkit: use PolicyKit to authenticate. This is only suitable
 #            for use on the UNIX sockets. The default policy will
@@ -143,7 +152,7 @@ auth_unix_rw = "none"
 # Don't do this outside of a dev/test scenario. For real world
 # use, always enable SASL and use the GSSAPI or DIGEST-MD5
 # mechanism in /etc/sasl2/libvirt.conf
-auth_tcp = "sasl"
+auth_tcp = "none"
 
 # Change the authentication scheme for TLS sockets.
 #
@@ -152,9 +161,18 @@ auth_tcp = "sasl"
 #
 # It is possible to make use of any SASL authentication
 # mechanism as well, by using 'sasl' for this option
-#auth_tls = "none"
+auth_tls = "none"
 
 
+# Change the API access control scheme
+#
+# By default an authenticated user is allowed access
+# to all APIs. Access drivers can place restrictions
+# on this. By default the 'nop' driver is enabled,
+# meaning no access control checks are done once a
+# client has authenticated with libvirtd
+#
+#access_drivers = [ "polkit" ]
 
 #################################################################
 #
@@ -164,15 +182,15 @@ auth_tcp = "sasl"
 
 # Override the default server key file path
 #
-key_file = "/var/lib/nova/<%= @certname %>.key"
+#key_file = "/etc/pki/libvirt/private/serverkey.pem"
 
 # Override the default server certificate file path
 #
-cert_file = "/etc/ssl/localcerts/<%= @certname %>.crt"
+#cert_file = "/etc/pki/libvirt/servercert.pem"
 
 # Override the default CA certificate path
 #
-ca_file = "<%= @ca_target %>"
+#ca_file = "/etc/pki/CA/cacert.pem"
 
 # Specify a certificate revocation list.
 #
@@ -207,7 +225,7 @@ ca_file = "<%= @ca_target %>"
 #tls_no_verify_certificate = 1
 
 
-# A whitelist of allowed x509  Distinguished Names
+# A whitelist of allowed x509 Distinguished Names
 # This list may contain wildcards such as
 #
 #    "C=GB,ST=London,L=London,O=Red Hat,CN=*"
@@ -218,7 +236,7 @@ ca_file = "<%= @ca_target %>"
 # entirely rather than using empty list to disable these checks
 #
 # By default, no DN's are checked
-tls_allowed_dn_list = ["C=US,ST=California,O=Wikimedia Foundation,OU=Operations,CN=labvirt*.<%= @site %>.wmnet"]
+#tls_allowed_dn_list = ["DN1", "DN2"]
 
 
 # A whitelist of allowed SASL usernames. The format for usernames
@@ -246,12 +264,22 @@ tls_allowed_dn_list = ["C=US,ST=California,O=Wikimedia Foundation,OU=Operations,
 
 # The maximum number of concurrent client connections to allow
 # over all sockets combined.
-#max_clients = 20
+#max_clients = 5000
 
+# The maximum length of queue of connections waiting to be
+# accepted by the daemon. Note, that some protocols supporting
+# retransmission may obey this so that a later reattempt at
+# connection succeeds.
+#max_queued_clients = 1000
+
+# The maximum length of queue of accepted but not yet
+# authenticated clients. The default value is zero, meaning
+# the feature is disabled.
+#max_anonymous_clients = 20
 
 # The minimum limit sets the number of workers to start up
 # initially. If the number of active clients exceeds this,
-# then more threads are spawned, upto max_workers limit.
+# then more threads are spawned, up to max_workers limit.
 # Typically you'd want max_workers to equal maximum number
 # of clients allowed
 #min_workers = 5
@@ -259,15 +287,15 @@ tls_allowed_dn_list = ["C=US,ST=California,O=Wikimedia Foundation,OU=Operations,
 
 
 # The number of priority workers. If all workers from above
-# pool will stuck, some calls marked as high priority
+# pool are stuck, some calls marked as high priority
 # (notably domainDestroy) can be executed in this pool.
 #prio_workers = 5
 
 # Total global limit on concurrent RPC calls. Should be
 # at least as large as max_workers. Beyond this, RPC requests
-# will be read into memory and queued. This directly impact
+# will be read into memory and queued. This directly impacts
 # memory usage, currently each request requires 256 KB of
-# memory. So by default upto 5 MB of memory is used
+# memory. So by default up to 5 MB of memory is used
 #
 # XXX this isn't actually enforced yet, only the per-client
 # limit is used so far
@@ -286,27 +314,33 @@ tls_allowed_dn_list = ["C=US,ST=California,O=Wikimedia Foundation,OU=Operations,
 
 # Logging level: 4 errors, 3 warnings, 2 information, 1 debug
 # basically 1 will log everything possible
+# Note: Journald may employ rate limiting of the messages logged
+# and thus lock up the libvirt daemon. To use the debug level with
+# journald you have to specify it explicitly in 'log_outputs', otherwise
+# only information level messages will be logged.
 #log_level = 3
 
 # Logging filters:
 # A filter allows to select a different logging level for a given category
 # of logs
-# The format for a filter is:
+# The format for a filter is one of:
 #    x:name
-#      where name is a match string e.g. remote or qemu
-# the x prefix is the minimal level where matching messages should be logged
+#    x:+name
+#      where name is a string which is matched against source file name,
+#      e.g., "remote", "qemu", or "util/json", the optional "+" prefix
+#      tells libvirt to log stack trace for each message matching name,
+#      and x is the minimal level where matching messages should be logged:
 #    1: DEBUG
 #    2: INFO
 #    3: WARNING
 #    4: ERROR
 #
-# Multiple filter can be defined in a single @filters, they just need to be
+# Multiple filters can be defined in a single @filters, they just need to be
 # separated by spaces.
 #
-# e.g:
-# log_filters="3:remote 4:event"
-# to only get warning or errors from the remote layer and only errors from
-# the event layer.
+# e.g. to only get warning or errors from the remote layer and only errors
+# from the event layer:
+#log_filters="3:remote 4:event"
 
 # Logging outputs:
 # An output is one of the places to save logging information
@@ -317,22 +351,24 @@ tls_allowed_dn_list = ["C=US,ST=California,O=Wikimedia Foundation,OU=Operations,
 #      use syslog for the output and use the given name as the ident
 #    x:file:file_path
 #      output to a file, with the given filepath
+#    x:journald
+#      output to journald logging system
 # In all case the x prefix is the minimal level, acting as a filter
 #    1: DEBUG
 #    2: INFO
 #    3: WARNING
 #    4: ERROR
 #
-# Multiple output can be defined, they just need to be separated by spaces.
-# e.g.:
-# log_outputs="3:syslog:libvirtd"
-# to log all warnings and errors to syslog under the libvirtd ident
+# Multiple outputs can be defined, they just need to be separated by spaces.
+# e.g. to log all warnings and errors to syslog under the libvirtd ident:
+#log_outputs="3:syslog:libvirtd"
+#
 
-# Log debug buffer size: default 64
-# The daemon keeps an internal debug log buffer which will be dumped in case
-# of crash or upon receiving a SIGUSR2 signal. This setting allows to override
-# the default buffer size in kilobytes.
-# If value is 0 or less the debug log buffer is deactivated
+# Log debug buffer size:
+#
+# This configuration option is no longer used, since the global
+# log buffer functionality has been removed. Please configure
+# suitable log_outputs/log_filters settings to obtain logs.
 #log_buffer_size = 64
 
 
@@ -370,7 +406,7 @@ tls_allowed_dn_list = ["C=US,ST=California,O=Wikimedia Foundation,OU=Operations,
 ###################################################################
 # Keepalive protocol:
 # This allows libvirtd to detect broken client connections or even
-# dead client.  A keepalive message is sent to a client after
+# dead clients.  A keepalive message is sent to a client after
 # keepalive_interval seconds of inactivity to check if the client is
 # still responding; keepalive_count is a maximum number of keepalive
 # messages that are allowed to be sent to the client without getting
@@ -379,7 +415,7 @@ tls_allowed_dn_list = ["C=US,ST=California,O=Wikimedia Foundation,OU=Operations,
 # keepalive_interval * (keepalive_count + 1) seconds since the last
 # message received from the client.  If keepalive_interval is set to
 # -1, libvirtd will never send keepalive requests; however clients
-# can still send them and the deamon will send responses.  When
+# can still send them and the daemon will send responses.  When
 # keepalive_count is set to 0, connections will be automatically
 # closed after keepalive_interval seconds of inactivity without
 # sending any keepalive messages.

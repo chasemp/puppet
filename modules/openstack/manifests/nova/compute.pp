@@ -3,111 +3,51 @@
 # https://wiki.openstack.org/wiki/Nova
 class openstack::nova::compute(
     $novaconfig,
-    $openstack_version=$::openstack::version
+    $openstack_version='liberty'
 ){
-    include ::openstack::repo
+    # include ::openstack::repo
 
-    if ( $::realm == 'production' ) {
-        $certname = "labvirt-star.${::site}.wmnet"
-        $ca_target = '/etc/ssl/certs/wmf_ca_2014_2017.pem'
-        sslcert::certificate { $certname: }
+    include openstack::compute_nova
 
-        file { "/var/lib/nova/${certname}.key":
-            owner   => 'nova',
-            group   => 'libvirtd',
-            mode    => '0440',
-            content => secret("ssl/${certname}.key"),
-            require => Package['nova-common'],
-        }
-        file { '/var/lib/nova/clientkey.pem':
-            ensure => link,
-            target => "/var/lib/nova/${certname}.key",
-        }
-        file { '/var/lib/nova/clientcert.pem':
-            ensure  => link,
-            target  => "/etc/ssl/localcerts/${certname}.crt",
-            require => Sslcert::Certificate[$certname],
-        }
-
-        file { '/usr/local/lib/nagios/plugins/check_ssl_certfile':
-            ensure => present,
-            owner  => 'root',
-            group  => 'root',
-            mode   => '0755',
-            source => 'puppet:///modules/nagios_common/check_commands/check_ssl_certfile',
-        }
-
-        # T116332
-        nrpe::monitor_service { 'kvm_ssl_cert':
-            description  => 'kvm ssl cert',
-            nrpe_command => "/usr/local/lib/nagios/plugins/check_ssl_certfile /etc/ssl/localcerts/${certname}.crt",
-        }
-
-        file { '/var/lib/nova/cacert.pem':
-            ensure  => link,
-            target  => $ca_target,
-            require => Sslcert::Certificate[$certname],
-        }
-        file { '/var/lib/nova/.ssh':
-            ensure  => directory,
-            owner   => 'nova',
-            group   => 'nova',
-            mode    => '0700',
-            require => Package['nova-common'],
-        }
-        file { '/var/lib/nova/.ssh/id_rsa':
-            content => secret('ssh/nova/nova.key'),
-            owner   => 'nova',
-            group   => 'nova',
-            mode    => '0600',
-            require => File['/var/lib/nova/.ssh'],
-        }
-        file { '/var/lib/nova/.ssh/id_rsa.pub':
-            content => secret('ssh/nova/nova.pub'),
-            owner   => 'nova',
-            group   => 'nova',
-            mode    => '0600',
-            require => File['/var/lib/nova/.ssh'],
-        }
-
-        file { '/etc/libvirt/libvirtd.conf':
-            notify  => Service['libvirt-bin'],
-            owner   => 'root',
-            group   => 'root',
-            mode    => '0444',
-            content => template('openstack/common/nova/libvirtd.conf.erb'),
-            require => Package['nova-common'],
-        }
-        file { '/etc/default/libvirt-bin':
-            notify  => Service['libvirt-bin'],
-            owner   => 'root',
-            group   => 'root',
-            mode    => '0444',
-            content => template('openstack/common/nova/libvirt-bin.default.erb'),
-            require => Package['nova-common'],
-        }
-        file { '/etc/nova/nova-compute.conf':
-            notify  => Service['nova-compute'],
-            owner   => 'root',
-            group   => 'root',
-            mode    => '0444',
-            content => template('openstack/common/nova/nova-compute.conf.erb'),
-            require => Package['nova-common'],
-        }
+    # XXX: lablocal unsure yet of effect: not much it seems except sasl auth
+    file { '/etc/libvirt/libvirtd.conf':
+         notify  => Service['libvirt-bin'],
+         owner   => 'root',
+         group   => 'root',
+         mode    => '0444',
+         content => template('openstack/common/nova/libvirtd.conf.erb'),
     }
+
+    file { '/etc/default/libvirt-bin':
+        notify  => Service['libvirt-bin'],
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0444',
+        content => template('openstack/common/nova/libvirt-bin.default.erb'),
+    }
+
+    file { '/etc/nova/nova-compute.conf':
+        notify  => Service['nova-compute'],
+        owner   => 'root',
+        group   => 'root',
+        mode    => '0444',
+        content => template('openstack/common/nova/nova-compute.conf.erb'),
+    }
+
+    # XXX: This seems like a leaky abstraction.
 
     # nova-compute won't ever check the policy file, but nova-common
     #  seems to expect it to be here, so install to make apt happy.
-    file { '/etc/nova/policy.json':
-        source => "puppet:///modules/openstack/${openstack_version}/nova/policy.json",
-        mode   => '0644',
-        owner  => 'root',
-        group  => 'root',
-    }
+    # file { '/etc/nova/policy.json':
+    #    source => "puppet:///modules/openstack/${openstack_version}/nova/policy.json",
+    #    mode   => '0644',
+    #    owner  => 'root',
+    #    group  => 'root',
+    #}
 
-    ssh::userkey { 'nova':
-        content => secret('ssh/nova/nova.pub'),
-    }
+    # ssh::userkey { 'nova':
+    #    content => secret('ssh/nova/nova.pub'),
+    #}
 
     service { 'libvirt-bin':
         ensure  => running,
@@ -132,7 +72,6 @@ class openstack::nova::compute(
                       'virt-top',
                 ]:
             ensure  => present,
-            require => [Class['openstack::repo'], Package['qemu-system']],
         }
     }
 
@@ -155,7 +94,6 @@ class openstack::nova::compute(
     # which is somewhat broken.
     package { 'qemu-system':
         ensure  => present,
-        require => Class['openstack::repo'],
     }
 
     # qemu-kvm and qemu-system are alternative packages to meet the needs of
@@ -164,19 +102,21 @@ class openstack::nova::compute(
     #  different
     #  from our old, existing servers, and it also defaults to use spice for vms
     #  even though spice is not installed.  Messy.
-    package { [ 'qemu-kvm' ]:
-        ensure  => absent,
-        require => Package['qemu-system'],
-    }
+
+    #### XXX: seems no longer true after precise/kilo?
+    ## package { [ 'qemu-kvm' ]:
+    ##    ensure  => absent,
+    ##    require => Package['qemu-system'],
+    ##}
 
     # nova-compute adds the user with /bin/false, but resize, live migration,
     # etc.
     # need the nova use to have a real shell, as it uses ssh.
-    user { 'nova':
-        ensure  => present,
-        shell   => '/bin/bash',
-        require => Package['nova-common'],
-    }
+    #user { 'nova':
+    #    ensure  => present,
+    #    shell   => '/bin/bash',
+    #    require => Package['nova-common'],
+    #}
 
     service { 'nova-compute':
         ensure    => running,
@@ -184,12 +124,8 @@ class openstack::nova::compute(
         require   => Package['nova-compute'],
     }
 
-    file { '/etc/libvirt/qemu/networks/autostart/default.xml':
-            ensure  => absent,
-    }
-
-    nrpe::monitor_service { 'check_nova_compute_process':
-        description  => 'nova-compute process',
-        nrpe_command => "/usr/lib/nagios/plugins/check_procs -c 1:1 --ereg-argument-array '^/usr/bin/python /usr/bin/nova-compute'",
-    }
+    # XXX: Why?
+    #file { '/etc/libvirt/qemu/networks/autostart/default.xml':
+    #        ensure  => absent,
+    #}
 }
