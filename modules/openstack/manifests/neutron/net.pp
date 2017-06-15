@@ -15,6 +15,8 @@ class openstack::neutron::net {
             'neutron-plugin-ml2',
             'neutron-common',
             'mariadb-client-core-5.5',
+            'neutron-plugin-ml2',
+            'neutron-plugin-linuxbridge-agent',
             'python-neutronclient']:
         ensure => present,
     }
@@ -54,6 +56,12 @@ class openstack::neutron::net {
         notify  => Service['neutron-metadata-agent'],
     }
 
+    file { '/etc/neutron/plugins/ml2/ml2_conf.ini':
+        content => template('openstack/neutron/ml2/ml2_conf.ini'),
+        owner   => 'neutron',
+        require => Package['neutron-server'],
+        notify  => Service['neutron-server'],
+    }
 
     service {'neutron-server':
         ensure => running,
