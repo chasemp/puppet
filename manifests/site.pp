@@ -1180,6 +1180,12 @@ node 'services1' {
 node 'virt1' {
     include ::standard
     include role::labs::openstack::nova::compute
+    include openstack::neutron::virt
+}
+
+node 'net1' {
+    include ::standard
+    include openstack::neutron::net
 }
 
 node 'control1' {

@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+source /root/novaenv.sh
+set -ex
+
+openstack service create --name neutron --description "Openstack Networking" network
+
+openstack service list
+
+openstack endpoint create --region lablocal network \
+    public http://net1.local:9696
+openstack endpoint create --region lablocal network \
+    internal http://net1.local:9696
+openstack endpoint create --region lablocal \
+    network admin http://net1.local:9696
+
+openstack endpoint list
+
+# ON NET #
+
+# su -s /bin/sh -c "neutron-db-manage --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
