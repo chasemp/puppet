@@ -1,6 +1,6 @@
 # su -s /bin/sh -c "neutron-db-manage \
-    --config-file /etc/neutron/neutron.conf \
-    --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
+#    --config-file /etc/neutron/neutron.conf \
+#    --config-file /etc/neutron/plugins/ml2/ml2_conf.ini upgrade head" neutron
 
 # neutron agent-list
 
@@ -12,7 +12,6 @@ class openstack::neutron::net {
             'neutron-server',
             'neutron-dhcp-agent',
             'neutron-metadata-agent',
-            'neutron-plugin-ml2',
             'neutron-common',
             'mariadb-client-core-5.5',
             'neutron-plugin-ml2',
@@ -57,10 +56,20 @@ class openstack::neutron::net {
     }
 
     file { '/etc/neutron/plugins/ml2/ml2_conf.ini':
-        content => template('openstack/neutron/ml2/ml2_conf.ini'),
+        content => template('openstack/neutron/ml2/ml2_conf.ini.erb'),
         owner   => 'neutron',
         require => Package['neutron-server'],
         notify  => Service['neutron-server'],
+    }
+
+    file { '/etc/neutron/plugins/ml2/linuxbridge_agent.ini':
+        content => template('openstack/neutron/ml2/linuxbridge_agent.ini.erb'),
+        owner   => 'neutron',
+        require => Package['neutron-plugin-linuxbridge-agent'],
+    }
+
+    service {'neutron-plugin-linuxbridge-agent':
+        ensure => 'running',
     }
 
     service {'neutron-server':
@@ -74,6 +83,4 @@ class openstack::neutron::net {
     service {'neutron-dhcp-agent':
         ensure => running,
     }
-
 }
-    

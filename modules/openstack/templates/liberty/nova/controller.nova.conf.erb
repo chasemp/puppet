@@ -9,6 +9,8 @@ firewall_driver = nova.virt.firewall.NoopFirewallDriver
 # instead for fw use neutron
 security_group_api = neutron
 
+linuxnet_interface_driver = nova.network.linux_net.LinuxBridgeInterfaceDriver
+
 ###### ---- ######
 
 my_ip=<%= @novaconfig["my_ip"] %>

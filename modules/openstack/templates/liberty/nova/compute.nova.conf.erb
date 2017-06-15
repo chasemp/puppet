@@ -1,5 +1,15 @@
 [DEFAULT]
 
+network_api_class = nova.network.neutronv2.api.API
+# tell nova not to try to do its own firewall management
+firewall_driver = nova.virt.firewall.NoopFirewallDriver
+# instead for fw use neutron
+security_group_api = neutron
+
+linuxnet_interface_driver = nova.network.linux_net.LinuxBridgeInterfaceDriver
+
+#####
+
 my_ip=<%= @novaconfig["my_ip"] %>
 
 dhcpbridge_flagfile=/etc/nova/nova.conf

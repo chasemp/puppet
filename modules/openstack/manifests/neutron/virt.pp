@@ -3,8 +3,9 @@ class openstack::neutron::virt {
     notify {'neutron':}
 
     package { [
+            'neutron-plugin-linuxbridge-agent',
             'neutron-plugin-ml2',
-            'neutron-plugin-linuxbridge-agent'],
+        ]:
         ensure => present,
     }
 
@@ -14,9 +15,26 @@ class openstack::neutron::virt {
     $novaconfig = $role::labs::openstack::nova::common::novaconfig
 
     file { '/etc/neutron/plugins/ml2/ml2_conf.ini':
-        content => template('openstack/neutron/ml2/ml2_conf.ini'),
+        content => template('openstack/neutron/ml2/ml2_conf.ini.erb'),
         owner   => 'neutron',
         require => Package['neutron-plugin-linuxbridge-agent'],
     }
+
+    file { '/etc/neutron/plugins/ml2/linuxbridge_agent.ini':
+        content => template('openstack/neutron/ml2/linuxbridge_agent.ini.erb'),
+        owner   => 'neutron',
+        require => Package['neutron-plugin-linuxbridge-agent'],
+        notify  => Service['neutron-plugin-linuxbridge-agent'],
+    }
+
+    file { '/etc/neutron/neutron.conf':
+        content => template('openstack/neutron/neutron.conf.erb'),
+        owner   => 'neutron',
+        require => Package['neutron-plugin-linuxbridge-agent'],
+        notify  => Service['neutron-plugin-linuxbridge-agent'],
+    }
+
+    service {'neutron-plugin-linuxbridge-agent':
+        ensure => 'running',
+    }
 }
-    
