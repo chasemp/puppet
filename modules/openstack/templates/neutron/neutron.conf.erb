@@ -1,14 +1,26 @@
 [DEFAULT]
 
+auth_url = http://192.168.1.200:5000/v2.0
+
 notify_nova_on_port_status_changes = True
 notify_nova_on_port_data_changes = True
-nova_url = http://192.168.1.200:8774/v2
+
+nova_region_name = lablocal
+nova_admin_auth_url = http://192.168.1.200:35357/v2.0
+nova_admin_tenant_id = f67b9b7869c345e8bc2b1b9f08dae6f7
+nova_admin_username = novaadmin
+nova_admin_password = nimdaavon
+nova_url = http://192.168.1.200:8774/v2
+
+notify_nova_on_port_data_changes = True
+notify_nova_on_port_status_change = True
+
 
 auth_strategy = keystone
 rpc_backend = rabbit
 
-# Print more verbose output (set logging level to INFO instead of default WARNING level).
-verbose = True
+service_plugins = router
+
 
 # =========Start Global Config Option for Distributed L3 Router===============
 # Setting the "router_distributed" flag to "True" will default to the creation
@@ -98,7 +110,7 @@ core_plugin = ml2
 
 # The strategy to be used for auth.
 # Supported values are 'keystone'(default), 'noauth'.
-# auth_strategy = keystone
+auth_strategy = keystone
 
 # Base MAC address. The first 3 octets will remain unchanged. If the
 # 4h octet is not 00, it will also be used. The others will be
@@ -579,7 +591,7 @@ core_plugin = ml2
 
 # The messaging driver to use, defaults to rabbit. Other
 # drivers include qpid and zmq. (string value)
-# rpc_backend=rabbit
+rpc_backend=rabbit
 
 # The default exchange under which topics are scoped. May be
 # overridden by an exchange name specified in the
@@ -727,20 +739,15 @@ root_helper = sudo /usr/bin/neutron-rootwrap /etc/neutron/rootwrap.conf
 # ===========  end of items for agent management extension =====
 
 [keystone_authtoken]
-auth_host = 192.168.1.200
-auth_protocol = http
-auth_port = 35357
-admin_user = novaadmin
-admin_tenant_name = service
-admin_password = nimdaavon
+auth_uri = http://192.168.1.200:5000
+auth_url = http://192.168.1.200:35357
+auth_plugin = password
 project_domain_id = default
 user_domain_id = default
-auth_uri = http://192.168.1.200:5000/v3
-#auth_uri = http://127.0.0.1:35357/v2.0/
-#identity_uri = http://127.0.0.1:5000
-#admin_tenant_name = %SERVICE_TENANT_NAME%
-#admin_user = %SERVICE_USER%
-#admin_password = %SERVICE_PASSWORD%
+project_name = admin
+username = novaadmin
+password = nimdaavon
+auth_host = 192.168.1.200
 
 [database]
 connection = mysql://neutron:neutron@192.168.1.200:3306/neutron
@@ -787,7 +794,7 @@ auth_plugin = password
 project_domain_id = default
 user_domain_id = default
 region_name = lablocal
-project_name = service
+project_name = admin
 username = novaadmin
 password = nimdaavon
 

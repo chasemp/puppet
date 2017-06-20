@@ -8,13 +8,14 @@ network_api_class = nova.network.neutronv2.api.API
 firewall_driver = nova.virt.firewall.NoopFirewallDriver
 # instead for fw use neutron
 security_group_api = neutron
-linuxnet_interface_driver = nova.network.linux_net.LinuxBridgeInterfaceDriver
+
+linuxnet_interface_driver = nova.network.linux_net.LinuxBridgeInterfaceDriver
 
 ###### ---- ######
 
 my_ip=<%= @novaconfig["my_ip"] %>
 
-notification_driver = noop
+# notification_driver = noop
 dhcpbridge_flagfile=/etc/nova/nova.conf
 dhcpbridge=/usr/bin/nova-dhcpbridge
 logdir=/var/log/nova
@@ -48,7 +49,7 @@ auth_host = <%= @novaconfig['controller_hostname'] %>
 auth_protocol = http
 auth_port = 35357
 admin_user = novaadmin
-admin_tenant_name = service
+admin_tenant_name = admin
 admin_password = nimdaavon
 project_domain_id = default
 user_domain_id = default
@@ -74,7 +75,7 @@ auth_strategy = keystone
 admin_tenant_name = admin
 admin_username = novaadmin
 admin_password = nimdaavon
-admin_auth_url = http://192.168.1.200:5000/v3
+admin_auth_url = http://192.168.1.200:35357/v2.0
 
 #neutron: metadata_agent.ini.erb
 metadata_proxy_shared_secret = metadatasecret123
