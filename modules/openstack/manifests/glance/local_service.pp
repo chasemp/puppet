@@ -3,9 +3,9 @@
 # GRANT ALL PRIVILEGES ON glance.* TO 'glance'@'%' IDENTIFIED BY 'password';
 
 # openstack service create --name glance --description "OpenStack Image service" image
-# openstack endpoint create --region lablocal image public http://control1.local:9292
-# openstack endpoint create --region lablocal image internal http://control1:9292
-# openstack endpoint create --region lablocal image admin http://control1:9292
+# openstack endpoint create --region lablocal image public http://192.168.1.200:9292
+# openstack endpoint create --region lablocal image internal http://192.168.1.200:9292
+# openstack endpoint create --region lablocal image admin http://192.168.1.200:9292
 
 # su -s /bin/sh -c "glance-manage db_sync" glance
 

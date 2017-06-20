@@ -2,7 +2,7 @@
 
 notify_nova_on_port_status_changes = True
 notify_nova_on_port_data_changes = True
-nova_url = http://control1.local:8774/v2
+nova_url = http://192.168.1.200:8774/v2
 
 auth_strategy = keystone
 rpc_backend = rabbit
@@ -782,7 +782,7 @@ connection = mysql://neutron:neutron@192.168.1.200:3306/neutron
 # pool_timeout = 10
 
 [nova]
-auth_url = http://control1.local:35357
+auth_url = http://192.168.1.200:35357
 auth_plugin = password
 project_domain_id = default
 user_domain_id = default

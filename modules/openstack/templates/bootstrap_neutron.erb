@@ -8,11 +8,11 @@ openstack service create --name neutron --description "Openstack Networking" net
 openstack service list
 
 openstack endpoint create --region lablocal network \
-    public http://net1.local:9696
+    public http://192.168.1.202:9696
 openstack endpoint create --region lablocal network \
-    internal http://net1.local:9696
+    internal http://192.168.1.202:9696
 openstack endpoint create --region lablocal \
-    network admin http://net1.local:9696
+    network admin http://192.168.1.202:9696
 
 openstack endpoint list
 

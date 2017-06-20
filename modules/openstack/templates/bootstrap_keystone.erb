@@ -13,11 +13,11 @@ openstack service create --name keystone \
     --description "OpenStack Identity" identity
 
 openstack endpoint create --region lablocal identity \
-    public http://control1.local:5000/v2.0
+    public http://192.168.1.200:5000/v2.0
 openstack endpoint create --region lablocal identity \
-    internal http://control1.local:5000/v2.0
+    internal http://192.168.1.200:5000/v2.0
 openstack endpoint create --region lablocal \
-    identity admin http://control1.local:35357/v2.0
+    identity admin http://192.168.1.200:35357/v2.0
 
 openstack endpoint list
 

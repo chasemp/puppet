@@ -8,13 +8,13 @@ network_api_class = nova.network.neutronv2.api.API
 firewall_driver = nova.virt.firewall.NoopFirewallDriver
 # instead for fw use neutron
 security_group_api = neutron
-
 linuxnet_interface_driver = nova.network.linux_net.LinuxBridgeInterfaceDriver
 
 ###### ---- ######
 
 my_ip=<%= @novaconfig["my_ip"] %>
 
+notification_driver = noop
 dhcpbridge_flagfile=/etc/nova/nova.conf
 dhcpbridge=/usr/bin/nova-dhcpbridge
 logdir=/var/log/nova
@@ -40,6 +40,8 @@ max_overflow = 25
 max_pool_size = 10
 pool_timeout = 60
 
+[paste_deploy]
+flavor = keystone
 
 [keystone_authtoken]
 auth_host = <%= @novaconfig['controller_hostname'] %>
@@ -50,7 +52,8 @@ admin_tenant_name = service
 admin_password = nimdaavon
 project_domain_id = default
 user_domain_id = default
-auth_uri = <%= @novaconfig["auth_uri"] %>/v3
+auth_uri = http://192.168.1.200:5000/v3
+auth_url = http://192.168.1.200:35357
 
 [oslo_messaging_rabbit]
 rabbit_host=<%= @novaconfig["rabbit_host"] %>
@@ -66,7 +69,7 @@ lock_path=/var/lock/nova
 host = <%= @novaconfig['controller_hostname'] %>
 
 [neutron]
-url = http://net1.local:9696
+url = http://192.168.1.202:9696
 auth_strategy = keystone
 admin_tenant_name = admin
 admin_username = novaadmin

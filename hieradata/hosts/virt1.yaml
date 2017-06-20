@@ -4,8 +4,8 @@ novaconfig:
   rabbit_user: nova
   rabbit_pass: avon
 
-  network_host: net1.local
-  api_host: net1.local
+  network_host: 192.168.1.202
+  api_host: 192.168.1.202
   db_name: 'nova'
   db_user: 'nova'
   db_pass: 'avon'
@@ -55,7 +55,7 @@ novaconfig:
   zone: lablocal
 
   scheduler_pool:
-    - virt1.local
+    - 192.168.1.203
 
   wikitechstatusconfig:
 
@@ -72,7 +72,7 @@ glanceconfig:
 
 ### for rabbit###
 labs_nova_controller: '192.168.1.200'
-rabbit_host: 'control1'
+rabbit_host: '192.168.1.200'
 rabbit_monitor_pass: 'rabbitpass'
 
 #### for keystone ###
