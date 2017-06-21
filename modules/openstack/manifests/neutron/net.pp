@@ -16,6 +16,7 @@ class openstack::neutron::net {
             'mariadb-client-core-5.5',
             'neutron-plugin-ml2',
             'neutron-plugin-linuxbridge-agent',
+            'neutron-l3-agent',
             'python-neutronclient']:
         ensure => present,
     }
@@ -68,6 +69,13 @@ class openstack::neutron::net {
         require => Package['neutron-plugin-linuxbridge-agent'],
     }
 
+    file { '/etc/neutron/l3_agent.ini':
+        content => template('openstack/neutron/l3_agent.ini.erb'),
+        owner   => 'neutron',
+        require => Package['neutron-l3-agent'],
+        notify  => Service['neutron-l3-agent'],
+    }
+
     service {'neutron-plugin-linuxbridge-agent':
         ensure => 'running',
     }
@@ -81,6 +89,9 @@ class openstack::neutron::net {
     }
 
     service {'neutron-dhcp-agent':
+        ensure => running,
+    }
+    service {'neutron-l3-agent':
         ensure => running,
     }
 }
